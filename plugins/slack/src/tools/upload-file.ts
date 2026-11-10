@@ -18,6 +18,8 @@ const MAGIC_BYTES: Record<string, number[]> = {
 const UPLOAD_TIMEOUT_MS = 240_000;
 /** The extension kills a tool after 25 s without a progress report, so report at least this often. */
 const HEARTBEAT_MS = 5_000;
+/** How long to wait for Slack to report the share message ts (video processing is slow). */
+const SHARE_WAIT_MS = 45_000;
 
 interface SlackFileShare {
   ts?: string;
@@ -194,11 +196,13 @@ export const uploadFile = defineTool({
 
       if (params.staged_upload_id !== undefined) dropStaged(params.staged_upload_id);
 
-      // Sharing is asynchronous: the message ts shows up in files.info shortly after.
+      // Sharing is asynchronous: the message ts shows up in files.info once Slack has processed
+      // the file. Images take about a second; a 15 MB video took about 25 s.
       let ts: string | undefined;
       let permalink = completed?.permalink;
-      for (let attempt = 0; attempt < 8 && ts === undefined; attempt++) {
-        if (attempt > 0) await sleep(750);
+      const shareDeadline = Date.now() + SHARE_WAIT_MS;
+      for (let attempt = 0; ts === undefined && (attempt === 0 || Date.now() < shareDeadline); attempt++) {
+        if (attempt > 0) await sleep(attempt < 4 ? 750 : 2_000);
         try {
           const info = await slackApi<{ file?: SlackFileInfo }>('files.info', { file: fileId });
           if (info.file) {
