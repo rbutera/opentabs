@@ -1,6 +1,7 @@
 import { isSlackAuthenticated, waitForSlackAuth } from './slack-api.js';
 import { addReaction } from './tools/add-reaction.js';
 import { createChannel } from './tools/create-channel.js';
+import { deleteFile } from './tools/delete-file.js';
 import { deleteMessage } from './tools/delete-message.js';
 import { editMessage } from './tools/edit-message.js';
 import { getChannelInfo } from './tools/get-channel-info.js';
@@ -19,6 +20,7 @@ import { searchMessages } from './tools/search-messages.js';
 import { sendMessage } from './tools/send-message.js';
 import { setChannelPurpose } from './tools/set-channel-purpose.js';
 import { setChannelTopic } from './tools/set-channel-topic.js';
+import { stageUploadChunk } from './tools/stage-upload-chunk.js';
 import { unpinMessage } from './tools/unpin-message.js';
 import { uploadFile } from './tools/upload-file.js';
 import { OpenTabsPlugin } from '@opentabs-dev/plugin-sdk';
@@ -48,7 +50,9 @@ class SlackPlugin extends OpenTabsPlugin {
     listUsers,
     openDm,
     uploadFile,
+    stageUploadChunk,
     listFiles,
+    deleteFile,
     addReaction,
     removeReaction,
     pinMessage,

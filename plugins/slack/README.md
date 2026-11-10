@@ -19,7 +19,7 @@ npm install -g @opentabs-dev/opentabs-plugin-slack
 1. Open [slack.com](https://app.slack.com) in Chrome and log in
 2. Open the OpenTabs side panel — the Slack plugin should appear as **ready**
 
-## Tools (22)
+## Tools (24)
 
 ### Messages (6)
 
@@ -57,12 +57,20 @@ npm install -g @opentabs-dev/opentabs-plugin-slack
 |---|---|---|
 | `open_dm` | Open a direct message conversation | Write |
 
-### Files (2)
+### Files (4)
 
 | Tool | Description | Type |
 |---|---|---|
-| `upload_file` | Upload a file to a channel | Write |
+| `upload_file` | Upload a file to a channel or thread | Write |
+| `stage_upload_chunk` | Stage a chunk of a large file for upload_file | Write |
 | `list_files` | List files in a channel or workspace | Read |
+| `delete_file` | Delete a file | Write |
+
+`upload_file` uses Slack's current flow (`files.getUploadURLExternal`, a POST of the bytes to the returned
+upload URL, then `files.completeUploadExternal`); the legacy `files.upload` it used before returns
+`method_deprecated`. It accepts `thread_ts` to post into a thread. The OpenTabs server caps one tool-call
+request at 10 MiB, so files over about 7 MB go in chunks: call `stage_upload_chunk` for each base64 chunk with
+one `upload_id`, then `upload_file` with `staged_upload_id`.
 
 ### Reactions (4)
 
